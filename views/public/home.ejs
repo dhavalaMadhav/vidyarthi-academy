@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vidyarthi Academy - Home</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-container">
+      <div class="hero-content">
+        <h1 class="hero-title">EMPOWER YOUR FUTURE</h1>
+        <p class="hero-subtitle">Connect with opportunities. Build your career. Transform your potential.</p>
+        <div class="hero-buttons">
+          <a href="/signup" class="btn btn-primary btn-large">Get Started</a>
+          <a href="#programs" class="btn btn-secondary btn-large">Explore Programs</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="section" id="about">
+    <div class="container">
+      <h2 class="section-title">ABOUT VIDYARTHI ACADEMY</h2>
+      <div class="about-grid">
+        <div class="about-content">
+          <p>Vidyarthi Academy is a comprehensive platform connecting students with industry opportunities, training programs, and career guidance. We bridge the gap between education and employment.</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>5000+</h3>
+            <p>Students Trained</p>
+          </div>
+          <div class="stat-card">
+            <h3>500+</h3>
+            <p>Partner Companies</p>
+          </div>
+          <div class="stat-card">
+            <h3>1000+</h3>
+            <p>Internships</p>
+          </div>
+          <div class="stat-card">
+            <h3>95%</h3>
+            <p>Placement Rate</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Programs Section -->
+  <section class="section section-gray" id="programs">
+    <div class="container">
+      <h2 class="section-title">OUR PROGRAMS</h2>
+      <div class="programs-grid">
+        <div class="program-card">
+          <h3>Internships</h3>
+          <p>Gain practical experience with leading companies across various industries.</p>
+          <a href="/signup" class="btn btn-text">Apply Now →</a>
+        </div>
+        <div class="program-card">
+          <h3>Training Programs</h3>
+          <p>Enhance your skills with expert-led courses and certifications.</p>
+          <a href="/signup" class="btn btn-text">Enroll Now →</a>
+        </div>
+        <div class="program-card">
+          <h3>Fellowship</h3>
+          <p>Join our exclusive fellowship program for advanced career development.</p>
+          <a href="/signup" class="btn btn-text">Learn More →</a>
+        </div>
+        <div class="program-card">
+          <h3>Mentorship</h3>
+          <p>Connect with industry experts for personalized career guidance.</p>
+          <a href="/signup" class="btn btn-text">Get Mentored →</a>
+        </div>
+        <div class="program-card">
+          <h3>Career Counseling</h3>
+          <p>Discover your path with professional assessments and planning.</p>
+          <a href="/signup" class="btn btn-text">Start Journey →</a>
+        </div>
+        <div class="program-card">
+          <h3>Certifications</h3>
+          <p>Earn recognized certificates to boost your career prospects.</p>
+          <a href="/signup" class="btn btn-text">View Certificates →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Partners Section -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">OUR PARTNERS</h2>
+      <div class="partners-grid">
+        <div class="partner-card">Company A</div>
+        <div class="partner-card">Company B</div>
+        <div class="partner-card">Company C</div>
+        <div class="partner-card">Company D</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="section section-gray">
+    <div class="container">
+      <h2 class="section-title">TESTIMONIALS</h2>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <p>"Vidyarthi Academy helped me land my dream internship. The platform is user-friendly and the opportunities are genuine."</p>
+          <p class="testimonial-author">- Priya Sharma, Student</p>
+        </div>
+        <div class="testimonial-card">
+          <p>"As an employer, we've found excellent talent through this platform. Highly recommended!"</p>
+          <p class="testimonial-author">- Rajesh Kumar, HR Manager</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%- include('../partials/footer') %>
+  
+  <script src="/js/main.js"></script>
+</body>
+</html>

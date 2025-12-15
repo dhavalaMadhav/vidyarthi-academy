@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Vidyarthi Academy</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>LOGIN</h1>
+        <p>Welcome back to Vidyarthi Academy</p>
+      </div>
+      
+      <form class="auth-form" id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="role">Login As</label>
+          <select id="role" name="role" required>
+            <option value="">Select Role</option>
+            <option value="student">Student</option>
+            <option value="employer">Employer</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+        
+        <div class="auth-links">
+          <a href="/forgot-password">Forgot Password?</a>
+          <a href="/signup">Don't have an account? Sign Up</a>
+        </div>
+      </form>
+      
+      <div class="auth-footer">
+        <a href="/">← Back to Home</a>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        role: document.getElementById('role').value,
+      };
+      
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          
+          // Redirect based on role
+          const role = data.user.role;
+          window.location.href = `/${role}/dashboard`;
+        } else {
+          alert(data.message || 'Login failed');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Login failed. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>

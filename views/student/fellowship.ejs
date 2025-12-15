@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fellowship Programs - Vidyarthi Academy</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar', { role: 'student' }) %>
+    
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>FELLOWSHIP PROGRAMS</h1>
+        <div class="user-profile">
+          <span id="userName"></span>
+        </div>
+      </div>
+      
+      <div class="dashboard-body">
+        <!-- Fellowship Overview -->
+        <div class="section-card">
+          <h2>ABOUT FELLOWSHIP</h2>
+          <p>Our fellowship program offers intensive training, mentorship, and real-world project experience. Fellows receive stipends, certification, and guaranteed placement assistance.</p>
+          <div class="fellowship-features">
+            <div class="feature-item">✓ Stipend Support</div>
+            <div class="feature-item">✓ Industry Training</div>
+            <div class="feature-item">✓ Mentorship</div>
+            <div class="feature-item">✓ Certification</div>
+            <div class="feature-item">✓ Placement Assistance</div>
+            <div class="feature-item">✓ Real Projects</div>
+          </div>
+        </div>
+        
+        <!-- My Applications -->
+        <div class="section-card">
+          <h2>MY FELLOWSHIP APPLICATIONS</h2>
+          <div id="myApplications">
+            <p class="no-data">You haven't applied to any fellowships yet.</p>
+          </div>
+        </div>
+        
+        <!-- Available Fellowships -->
+        <div class="section-card">
+          <h2>AVAILABLE FELLOWSHIPS</h2>
+          <div id="fellowshipsList">
+            <div class="loading">Loading fellowships...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Apply Modal -->
+  <div id="applyModal" class="modal" style="display: none;">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h2>APPLY FOR FELLOWSHIP</h2>
+        <span class="modal-close" onclick="closeApplyModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div id="fellowshipDetails"></div>
+        <form id="applyForm">
+          <input type="hidden" id="fellowshipId">
+          
+          <div class="form-group">
+            <label for="trainingPartner">Training Partner Name *</label>
+            <input type="text" id="trainingPartner" required placeholder="Your current institution/organization">
+          </div>
+          
+          <div class="form-group">
+            <label for="whyApply">Why do you want to join this fellowship? *</label>
+            <textarea id="whyApply" rows="4" required placeholder="Tell us about your motivation and goals..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="experience">Relevant Experience</label>
+            <textarea id="experience" rows="3" placeholder="Describe your relevant skills and experience..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="projects">Portfolio/Projects</label>
+            <input type="url" id="projects" placeholder="https://github.com/yourprofile or portfolio link">
+          </div>
+          
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="commitmentAgree" required>
+              I commit to completing the full fellowship duration and all requirements
+            </label>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+            <button type="button" onclick="closeApplyModal()" class="btn btn-secondary">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    checkAuth('student');
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('userName').textContent = user.name;
+    
+    let selectedFellowship = null;
+    
+    // Load fellowships
+    async function loadFellowships() {
+      try {
+        const data = await apiCall('/api/student/fellowships');
+        displayFellowships(data.data);
+      } catch (error) {
+        console.error('Error loading fellowships:', error);
+        document.getElementById('fellowshipsList').innerHTML = '<p class="error">Failed to load fellowships</p>';
+      }
+    }
+    
+    // Display fellowships
+    function displayFellowships(data) {
+      const container = document.getElementById('fellowshipsList');
+      
+      if (data.length === 0) {
+        container.innerHTML = '<p class="no-data">No fellowships available at the moment. Check back soon!</p>';
+        return;
+      }
+      
+      container.innerHTML = data.map(fellowship => `
+        <div class="fellowship-card">
+          <div class="fellowship-badge">FELLOWSHIP</div>
+          <h3>${fellowship.title}</h3>
+          <p class="fellowship-description">${fellowship.description}</p>
+          
+          <div class="fellowship-info">
+            <div class="info-row">
+              <span class="info-label">Duration:</span>
+              <span>${fellowship.duration}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Stipend:</span>
+              <span>${fellowship.stipend || 'Performance-based'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Start Date:</span>
+              <span>${formatDate(fellowship.startDate)}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Deadline:</span>
+              <span class="deadline">${formatDate(fellowship.applicationDeadline)}</span>
+            </div>
+          </div>
+          
+          <div class="fellowship-section">
+            <h4>Eligibility</h4>
+            <ul>
+              ${fellowship.eligibility.map(item => `<li>${item}</li>`).join('')}
+            </ul>
+          </div>
+          
+          <div class="fellowship-section">
+            <h4>Benefits</h4>
+            <ul>
+              ${fellowship.benefits.map(item => `<li>${item}</li>`).join('')}
+            </ul>
+          </div>
+          
+          <button onclick='openApplyModal(${JSON.stringify(fellowship).replace(/'/g, "&#39;")})' class="btn btn-primary btn-block">Apply Now</button>
+        </div>
+      `).join('');
+    }
+    
+    // Open apply modal
+    function openApplyModal(fellowship) {
+      selectedFellowship = fellowship;
+      document.getElementById('fellowshipId').value = fellowship._id;
+      
+      document.getElementById('fellowshipDetails').innerHTML = `
+        <div class="apply-summary">
+          <h3>${fellowship.title}</h3>
+          <p><strong>Duration:</strong> ${fellowship.duration}</p>
+          <p><strong>Stipend:</strong> ${fellowship.stipend || 'Performance-based'}</p>
+        </div>
+      `;
+      
+      document.getElementById('applyModal').style.display = 'flex';
+    }
+    
+    // Close apply modal
+    function closeApplyModal() {
+      document.getElementById('applyModal').style.display = 'none';
+      document.getElementById('applyForm').reset();
+      selectedFellowship = null;
+    }
+    
+    // Submit application
+    document.getElementById('applyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!document.getElementById('commitmentAgree').checked) {
+        alert('Please confirm your commitment to complete the fellowship');
+        return;
+      }
+      
+      const fellowshipId = document.getElementById('fellowshipId').value;
+      
+      try {
+        await apiCall(`/api/student/fellowships/${fellowshipId}/apply`, 'POST', {
+          trainingPartner: document.getElementById('trainingPartner').value,
+          whyApply: document.getElementById('whyApply').value,
+          experience: document.getElementById('experience').value,
+          projects: document.getElementById('projects').value,
+        });
+        
+        alert('Fellowship application submitted successfully! You will be notified about the next steps.');
+        closeApplyModal();
+        loadFellowships();
+      } catch (error) {
+        alert(error.message || 'Failed to submit application');
+      }
+    });
+    
+    // Initial load
+    loadFellowships();
+  </script>
+  
+  <style>
+    .fellowship-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-md);
+    }
+    
+    .feature-item {
+      background: var(--color-gray-light);
+      border: 1px solid var(--color-gray);
+      padding: var(--spacing-sm);
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .fellowship-card {
+      border: 2px solid var(--color-primary);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
+      background: var(--color-secondary);
+      box-shadow: var(--shadow-solid);
+      position: relative;
+    }
+    
+    .fellowship-badge {
+      position: absolute;
+      top: var(--spacing-md);
+      right: var(--spacing-md);
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      padding: 6px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+    
+    .fellowship-card h3 {
+      margin-bottom: var(--spacing-sm);
+      font-size: 24px;
+    }
+    
+    .fellowship-description {
+      margin-bottom: var(--spacing-md);
+      color: var(--color-gray-dark);
+      line-height: 1.6;
+    }
+    
+    .fellowship-info {
+      background: var(--color-gray-light);
+      border: 1px solid var(--color-gray);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--spacing-xs) 0;
+      border-bottom: 1px solid var(--color-gray);
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      font-weight: 600;
+    }
+    
+    .deadline {
+      color: #dc3545;
+      font-weight: 600;
+    }
+    
+    .fellowship-section {
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .fellowship-section h4 {
+      margin-bottom: var(--spacing-sm);
+      padding-bottom: var(--spacing-xs);
+      border-bottom: 2px solid var(--color-primary);
+    }
+    
+    .fellowship-section ul {
+      padding-left: var(--spacing-md);
+    }
+    
+    .fellowship-section li {
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .apply-summary {
+      background: var(--color-gray-light);
+      border: 2px solid var(--color-primary);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .apply-summary h3 {
+      margin-bottom: var(--spacing-sm);
+    }
+  </style>
+</body>
+</html>

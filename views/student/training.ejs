@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Training Programs - Vidyarthi Academy</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar', { role: 'student' }) %>
+    
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>TRAINING PROGRAMS</h1>
+        <div class="user-profile">
+          <span id="userName"></span>
+        </div>
+      </div>
+      
+      <div class="dashboard-body">
+        <!-- Enrolled Trainings -->
+        <div class="section-card">
+          <h2>MY ENROLLED TRAININGS</h2>
+          <div id="enrolledTrainings">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+        
+        <!-- Available Trainings -->
+        <div class="section-card">
+          <h2>AVAILABLE TRAINING PROGRAMS</h2>
+          <div id="trainingsList">
+            <div class="loading">Loading trainings...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Training Details Modal -->
+  <div id="trainingModal" class="modal" style="display: none;">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h2 id="modalTitle">TRAINING DETAILS</h2>
+        <span class="modal-close" onclick="closeTrainingModal()">&times;</span>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Dynamic content -->
+      </div>
+      <div class="modal-footer">
+        <button id="enrollBtn" onclick="enrollTraining()" class="btn btn-primary">Enroll Now</button>
+        <button onclick="closeTrainingModal()" class="btn btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    checkAuth('student');
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('userName').textContent = user.name;
+    
+    let selectedTrainingId = null;
+    
+    // Load trainings
+    async function loadTrainings() {
+      try {
+        const data = await apiCall('/api/student/trainings');
+        displayTrainings(data.data);
+      } catch (error) {
+        console.error('Error loading trainings:', error);
+        document.getElementById('trainingsList').innerHTML = '<p class="error">Failed to load trainings</p>';
+      }
+    }
+    
+    // Display trainings
+    function displayTrainings(data) {
+      const container = document.getElementById('trainingsList');
+      
+      if (data.length === 0) {
+        container.innerHTML = '<p class="no-data">No training programs available at the moment</p>';
+        return;
+      }
+      
+      container.innerHTML = `
+        <div class="trainings-grid">
+          ${data.map(training => `
+            <div class="training-card">
+              <div class="training-header">
+                <h3>${training.title}</h3>
+                <span class="level-badge ${training.level.toLowerCase()}">${training.level}</span>
+              </div>
+              <p class="training-category">${training.category}</p>
+              <p class="training-description">${training.description.substring(0, 120)}...</p>
+              <div class="training-meta">
+                <span>📅 ${training.duration}</span>
+                <span>⭐ ${training.averageRating.toFixed(1)}</span>
+                <span>👥 ${training.enrolled.length}/${training.maxStudents}</span>
+              </div>
+              <div class="training-instructor">
+                <strong>Instructor:</strong> ${training.instructor.name}
+              </div>
+              <button onclick='viewTrainingDetails(${JSON.stringify(training).replace(/'/g, "&#39;")})' class="btn btn-primary btn-block">View Details</button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    
+    // View training details
+    function viewTrainingDetails(training) {
+      selectedTrainingId = training._id;
+      document.getElementById('modalTitle').textContent = training.title;
+      
+      document.getElementById('modalBody').innerHTML = `
+        <div class="training-details">
+          <div class="detail-section">
+            <h3>Overview</h3>
+            <p>${training.description}</p>
+          </div>
+          
+          <div class="detail-section">
+            <h3>Training Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <strong>Category:</strong> ${training.category}
+              </div>
+              <div class="info-item">
+                <strong>Duration:</strong> ${training.duration}
+              </div>
+              <div class="info-item">
+                <strong>Level:</strong> ${training.level}
+              </div>
+              <div class="info-item">
+                <strong>Status:</strong> ${training.status}
+              </div>
+            </div>
+          </div>
+          
+          <div class="detail-section">
+            <h3>Instructor</h3>
+            <p><strong>${training.instructor.name}</strong></p>
+            <p>${training.instructor.bio || 'Experienced industry professional'}</p>
+          </div>
+          
+          <div class="detail-section">
+            <h3>Schedule</h3>
+            <p><strong>Start Date:</strong> ${formatDate(training.schedule.startDate)}</p>
+            <p><strong>End Date:</strong> ${formatDate(training.schedule.endDate)}</p>
+            <p><strong>Sessions:</strong> ${training.schedule.sessions.length} sessions</p>
+          </div>
+          
+          <div class="detail-section">
+            <h3>What You'll Learn</h3>
+            <ul>
+              <li>Comprehensive course materials (PDF & Video)</li>
+              <li>Live interactive sessions</li>
+              <li>Weekly assessments</li>
+              <li>Final certification exam</li>
+              <li>Downloadable resources</li>
+            </ul>
+          </div>
+          
+          <div class="detail-section">
+            <h3>Ratings & Reviews</h3>
+            <p>⭐ ${training.averageRating.toFixed(1)} / 5.0 (${training.ratings.length} reviews)</p>
+          </div>
+        </div>
+      `;
+      
+      // Check if already enrolled
+      if (training.enrolled.includes(user.id)) {
+        document.getElementById('enrollBtn').textContent = 'Already Enrolled';
+        document.getElementById('enrollBtn').disabled = true;
+      } else if (training.enrolled.length >= training.maxStudents) {
+        document.getElementById('enrollBtn').textContent = 'Training Full';
+        document.getElementById('enrollBtn').disabled = true;
+      } else {
+        document.getElementById('enrollBtn').textContent = 'Enroll Now';
+        document.getElementById('enrollBtn').disabled = false;
+      }
+      
+      document.getElementById('trainingModal').style.display = 'flex';
+    }
+    
+    // Close training modal
+    function closeTrainingModal() {
+      document.getElementById('trainingModal').style.display = 'none';
+      selectedTrainingId = null;
+    }
+    
+    // Enroll in training
+    async function enrollTraining() {
+      if (!selectedTrainingId) return;
+      
+      try {
+        await apiCall(`/api/student/trainings/${selectedTrainingId}/enroll`, 'POST');
+        alert('Successfully enrolled in training!');
+        closeTrainingModal();
+        loadTrainings();
+      } catch (error) {
+        alert(error.message || 'Failed to enroll in training');
+      }
+    }
+    
+    // Initial load
+    loadTrainings();
+  </script>
+  
+  <style>
+    .trainings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: var(--spacing-md);
+    }
+    
+    .training-card {
+      border: 2px solid var(--color-primary);
+      padding: var(--spacing-md);
+      background: var(--color-secondary);
+      box-shadow: var(--shadow-solid);
+      transition: all 0.2s;
+    }
+    
+    .training-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: var(--shadow-solid-hover);
+    }
+    
+    .training-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .training-header h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+    
+    .level-badge {
+      padding: 4px 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      border: 1px solid var(--color-primary);
+    }
+    
+    .level-badge.beginner {
+      background: #d4edda;
+    }
+    
+    .level-badge.intermediate {
+      background: #fff3cd;
+    }
+    
+    .level-badge.advanced {
+      background: #f8d7da;
+    }
+    
+    .training-category {
+      color: var(--color-gray-dark);
+      font-size: 14px;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .training-description {
+      margin-bottom: var(--spacing-sm);
+      font-size: 14px;
+    }
+    
+    .training-meta {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+      font-size: 14px;
+      color: var(--color-gray-dark);
+    }
+    
+    .training-instructor {
+      margin-bottom: var(--spacing-md);
+      font-size: 14px;
+      padding-top: var(--spacing-sm);
+      border-top: 1px solid var(--color-gray);
+    }
+    
+    .training-details {
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    
+    .detail-section {
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 1px solid var(--color-gray);
+    }
+    
+    .detail-section:last-child {
+      border-bottom: none;
+    }
+    
+    .detail-section h3 {
+      margin-bottom: var(--spacing-sm);
+      font-size: 18px;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-sm);
+    }
+    
+    .info-item {
+      padding: var(--spacing-sm);
+      background: var(--color-gray-light);
+      border: 1px solid var(--color-gray);
+    }
+    
+    .detail-section ul {
+      padding-left: var(--spacing-md);
+    }
+    
+    .detail-section li {
+      margin-bottom: var(--spacing-xs);
+    }
+  </style>
+</body>
+</html>

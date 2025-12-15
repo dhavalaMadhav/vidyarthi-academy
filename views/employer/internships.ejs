@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Internships - Vidyarthi Academy</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar', { role: 'employer' }) %>
+    
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>MANAGE INTERNSHIPS</h1>
+        <button onclick="showPostForm()" class="btn btn-primary">+ Post New Internship</button>
+      </div>
+      
+      <div class="dashboard-body">
+        <!-- Post Internship Form -->
+        <div id="postForm" class="section-card" style="display: none;">
+          <h2>POST NEW INTERNSHIP</h2>
+          <form id="internshipForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="title">Internship Title *</label>
+                <input type="text" id="title" required>
+              </div>
+              <div class="form-group">
+                <label for="location">Location *</label>
+                <input type="text" id="location" required>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="description">Description *</label>
+              <textarea id="description" rows="4" required></textarea>
+            </div>
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="duration">Duration *</label>
+                <input type="text" id="duration" placeholder="e.g., 3 months" required>
+              </div>
+              <div class="form-group">
+                <label for="stipend">Stipend</label>
+                <input type="text" id="stipend" placeholder="e.g., ₹10000/month">
+              </div>
+              <div class="form-group">
+                <label for="type">Type *</label>
+                <select id="type" required>
+                  <option value="Full-time">Full-time</option>
+                  <option value="Part-time">Part-time</option>
+                  <option value="Remote">Remote</option>
+                  <option value="Hybrid">Hybrid</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="positions">Positions *</label>
+                <input type="number" id="positions" min="1" value="1" required>
+              </div>
+            </div>
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="startDate">Start Date *</label>
+                <input type="date" id="startDate" required>
+              </div>
+              <div class="form-group">
+                <label for="deadline">Application Deadline *</label>
+                <input type="date" id="deadline" required>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="skills">Skills Required (comma-separated) *</label>
+              <input type="text" id="skills" placeholder="e.g., JavaScript, React, Node.js" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Post Internship</button>
+            <button type="button" onclick="hidePostForm()" class="btn btn-secondary">Cancel</button>
+          </form>
+        </div>
+        
+        <!-- My Internships -->
+        <div class="section-card">
+          <h2>MY INTERNSHIPS</h2>
+          <div id="internshipsList">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    checkAuth('employer');
+    
+    function showPostForm() {
+      document.getElementById('postForm').style.display = 'block';
+    }
+    
+    function hidePostForm() {
+      document.getElementById('postForm').style.display = 'none';
+      document.getElementById('internshipForm').reset();
+    }
+    
+    // Submit internship
+    document.getElementById('internshipForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const data = {
+        title: document.getElementById('title').value,
+        location: document.getElementById('location').value,
+        description: document.getElementById('description').value,
+        duration: document.getElementById('duration').value,
+        stipend: document.getElementById('stipend').value,
+        type: document.getElementById('type').value,
+        positions: document.getElementById('positions').value,
+        startDate: document.getElementById('startDate').value,
+        applicationDeadline: document.getElementById('deadline').value,
+        skillsRequired: document.getElementById('skills').value.split(',').map(s => s.trim()),
+      };
+      
+      try {
+        await apiCall('/api/employer/internships', 'POST', data);
+        alert('Internship posted successfully!');
+        hidePostForm();
+        loadInternships();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+    
+    // Load internships
+    async function loadInternships() {
+      try {
+        const data = await apiCall('/api/employer/internships');
+        document.getElementById('internshipsList').innerHTML = data.data.length ? 
+          data.data.map(int => `<div class="internship-item"><h4>${int.title}</h4><p>${int.applicationsCount} applications</p></div>`).join('') :
+          '<p class="no-data">No internships posted yet</p>';
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    
+    loadInternships();
+  </script>
+</body>
+</html>

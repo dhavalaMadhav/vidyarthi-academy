@@ -1,0 +1,46 @@
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>VIDYARTHI</h2>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/<%= role %>/dashboard" class="sidebar-link">
+      <span>Dashboard</span>
+    </a>
+    
+    <% if (role === 'student') { %>
+      <a href="/student/internship" class="sidebar-link">
+        <span>Internships</span>
+      </a>
+      <a href="/student/training" class="sidebar-link">
+        <span>Training</span>
+      </a>
+      <a href="/student/mentorship" class="sidebar-link">
+        <span>Mentorship</span>
+      </a>
+      <a href="/student/fellowship" class="sidebar-link">
+        <span>Fellowship</span>
+      </a>
+      <a href="/student/career" class="sidebar-link">
+        <span>Career Counseling</span>
+      </a>
+      <a href="/student/certificate" class="sidebar-link">
+        <span>Certificates</span>
+      </a>
+      <a href="/student/feedback" class="sidebar-link">
+        <span>Feedback</span>
+      </a>
+    <% } else if (role === 'employer') { %>
+      <a href="/employer/internships" class="sidebar-link">
+        <span>Manage Internships</span>
+      </a>
+    <% } else if (role === 'admin') { %>
+      <a href="/admin/manage" class="sidebar-link">
+        <span>Manage Portal</span>
+      </a>
+    <% } %>
+    
+    <a href="#" onclick="logout()" class="sidebar-link logout-link">
+      <span>Logout</span>
+    </a>
+  </nav>
+</aside>

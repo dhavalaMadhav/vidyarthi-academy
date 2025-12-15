@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Counseling - Vidyarthi Academy</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar', { role: 'student' }) %>
+    
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>CAREER COUNSELING</h1>
+        <div class="user-profile">
+          <span id="userName"></span>
+        </div>
+      </div>
+      
+      <div class="dashboard-body">
+        <!-- Welcome Section -->
+        <div class="section-card">
+          <h2>WELCOME TO CAREER GUIDANCE</h2>
+          <p>Discover your ideal career path with personalized assessments, expert guidance, and comprehensive planning tools. Our career counseling program helps you make informed decisions about your professional future.</p>
+          
+          <div class="career-steps">
+            <div class="step-item">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>Complete Profile</h4>
+                <p>Tell us about your education, skills, and interests</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>Take Assessments</h4>
+                <p>Personality, skills, and communication tests</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>Get Career Plan</h4>
+                <p>Personalized roadmap to your dream career</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h4>Attend Workshops</h4>
+                <p>Leadership and professional development</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Profile Completion -->
+        <div class="section-card">
+          <h2>CAREER PROFILE</h2>
+          <div class="progress-section">
+            <div class="progress-header">
+              <span>Profile Completion</span>
+              <span id="profileProgress">35%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 35%"></div>
+            </div>
+          </div>
+          
+          <form id="careerProfileForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="education">Current Education Level *</label>
+                <select id="education" required>
+                  <option value="">Select</option>
+                  <option value="high-school">High School</option>
+                  <option value="undergraduate">Undergraduate</option>
+                  <option value="postgraduate">Postgraduate</option>
+                  <option value="diploma">Diploma</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="field">Field of Study *</label>
+                <input type="text" id="field" required placeholder="e.g., Computer Science">
+              </div>
+              
+              <div class="form-group">
+                <label for="institution">Institution *</label>
+                <input type="text" id="institution" required placeholder="Your college/university">
+              </div>
+              
+              <div class="form-group">
+                <label for="graduationYear">Expected Graduation *</label>
+                <input type="number" id="graduationYear" required min="2024" max="2030" placeholder="2025">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="interests">Career Interests (comma-separated) *</label>
+              <input type="text" id="interests" required placeholder="e.g., Software Development, Data Science, Product Management">
+            </div>
+            
+            <div class="form-group">
+              <label for="skills">Technical Skills (comma-separated) *</label>
+              <input type="text" id="skills" required placeholder="e.g., Python, JavaScript, React, SQL">
+            </div>
+            
+            <div class="form-group">
+              <label for="careerGoals">Career Goals</label>
+              <textarea id="careerGoals" rows="3" placeholder="Describe your short-term and long-term career goals..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+          </form>
+        </div>
+        
+        <!-- Assessments -->
+        <div class="section-card">
+          <h2>CAREER ASSESSMENTS</h2>
+          <div class="assessments-grid">
+            <div class="assessment-card">
+              <div class="assessment-icon">🧠</div>
+              <h3>Personality Test</h3>
+              <p>Discover your personality type and ideal work environment</p>
+              <div class="assessment-status">
+                <span class="status-badge pending">Not Started</span>
+              </div>
+              <button onclick="startAssessment('personality')" class="btn btn-primary btn-small">Start Test</button>
+            </div>
+            
+            <div class="assessment-card">
+              <div class="assessment-icon">🎯</div>
+              <h3>Skills Assessment</h3>
+              <p>Evaluate your technical and soft skills</p>
+              <div class="assessment-status">
+                <span class="status-badge pending">Not Started</span>
+              </div>
+              <button onclick="startAssessment('skills')" class="btn btn-primary btn-small">Start Test</button>
+            </div>
+            
+            <div class="assessment-card">
+              <div class="assessment-icon">💬</div>
+              <h3>Communication Test</h3>
+              <p>Assess your communication and interpersonal skills</p>
+              <div class="assessment-status">
+                <span class="status-badge pending">Not Started</span>
+              </div>
+              <button onclick="startAssessment('communication')" class="btn btn-primary btn-small">Start Test</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Career Plan -->
+        <div class="section-card">
+          <h2>YOUR CAREER PLAN</h2>
+          <div class="career-plan-locked">
+            <div class="lock-icon">🔒</div>
+            <p>Complete your profile and assessments to unlock your personalized career plan</p>
+            <div class="requirements">
+              <div class="requirement">✓ Complete Career Profile</div>
+              <div class="requirement">○ Complete Personality Test</div>
+              <div class="requirement">○ Complete Skills Assessment</div>
+              <div class="requirement">○ Complete Communication Test</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Workshops -->
+        <div class="section-card">
+          <h2>LEADERSHIP WORKSHOPS</h2>
+          <div class="workshops-list">
+            <div class="workshop-item">
+              <div class="workshop-info">
+                <h4>Leadership Fundamentals</h4>
+                <p>📅 January 20, 2026 | ⏱️ 2:00 PM - 4:00 PM</p>
+                <p>Learn essential leadership skills and team management techniques</p>
+              </div>
+              <button class="btn btn-secondary btn-small">Register</button>
+            </div>
+            
+            <div class="workshop-item">
+              <div class="workshop-info">
+                <h4>Public Speaking & Presentation</h4>
+                <p>📅 January 25, 2026 | ⏱️ 3:00 PM - 5:00 PM</p>
+                <p>Master the art of effective communication and presentations</p>
+              </div>
+              <button class="btn btn-secondary btn-small">Register</button>
+            </div>
+            
+            <div class="workshop-item">
+              <div class="workshop-info">
+                <h4>Career Planning & Goal Setting</h4>
+                <p>📅 February 1, 2026 | ⏱️ 10:00 AM - 12:00 PM</p>
+                <p>Create actionable career goals and strategic plans</p>
+              </div>
+              <button class="btn btn-secondary btn-small">Register</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    checkAuth('student');
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('userName').textContent = user.name;
+    
+    // Save career profile
+    document.getElementById('careerProfileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const profileData = {
+        education: document.getElementById('education').value,
+        field: document.getElementById('field').value,
+        institution: document.getElementById('institution').value,
+        graduationYear: document.getElementById('graduationYear').value,
+        interests: document.getElementById('interests').value.split(',').map(s => s.trim()),
+        skills: document.getElementById('skills').value.split(',').map(s => s.trim()),
+        careerGoals: document.getElementById('careerGoals').value,
+      };
+      
+      // TODO: API call to save profile
+      console.log('Career profile:', profileData);
+      
+      alert('Career profile saved successfully!');
+      
+      // Update progress
+      document.getElementById('profileProgress').textContent = '100%';
+      document.querySelector('.progress-fill').style.width = '100%';
+    });
+    
+    // Start assessment
+    function startAssessment(type) {
+      alert(`Starting ${type} assessment. This feature will redirect to the assessment platform.`);
+      // TODO: Implement assessment logic
+    }
+  </script>
+  
+  <style>
+    .career-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-md);
+    }
+    
+    .step-item {
+      display: flex;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md);
+      border: 2px solid var(--color-primary);
+      background: var(--color-gray-light);
+    }
+    
+    .step-number {
+      width: 40px;
+      height: 40px;
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    .step-content h4 {
+      margin-bottom: var(--spacing-xs);
+      font-size: 16px;
+    }
+    
+    .step-content p {
+      font-size: 14px;
+      color: var(--color-gray-dark);
+      margin: 0;
+    }
+    
+    .progress-section {
+      margin-bottom: var(--spacing-lg);
+      padding: var(--spacing-md);
+      background: var(--color-gray-light);
+      border: 1px solid var(--color-gray);
+    }
+    
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-sm);
+      font-weight: 600;
+    }
+    
+    .progress-bar {
+      height: 24px;
+      background: var(--color-secondary);
+      border: 2px solid var(--color-primary);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: var(--color-primary);
+      transition: width 0.3s ease;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-md);
+    }
+    
+    .assessments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-md);
+    }
+    
+    .assessment-card {
+      border: 2px solid var(--color-primary);
+      padding: var(--spacing-md);
+      text-align: center;
+      background: var(--color-secondary);
+      box-shadow: var(--shadow-solid);
+    }
+    
+    .assessment-icon {
+      font-size: 48px;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .assessment-card h3 {
+      margin-bottom: var(--spacing-sm);
+      font-size: 18px;
+    }
+    
+    .assessment-card p {
+      font-size: 14px;
+      color: var(--color-gray-dark);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .assessment-status {
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .career-plan-locked {
+      text-align: center;
+      padding: var(--spacing-xl);
+      background: var(--color-gray-light);
+      border: 2px dashed var(--color-gray-dark);
+    }
+    
+    .lock-icon {
+      font-size: 64px;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .requirements {
+      margin-top: var(--spacing-md);
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .requirement {
+      padding: var(--spacing-xs);
+      margin-bottom: var(--spacing-xs);
+      background: var(--color-secondary);
+      border: 1px solid var(--color-gray);
+    }
+    
+    .workshops-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    
+    .workshop-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md);
+      border: 1px solid var(--color-gray);
+      background: var(--color-gray-light);
+    }
+    
+    .workshop-info {
+      flex: 1;
+    }
+    
+    .workshop-info h4 {
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .workshop-info p {
+      font-size: 14px;
+      color: var(--color-gray-dark);
+      margin-bottom: var(--spacing-xs);
+    }
+  </style>
+</body>
+</html>

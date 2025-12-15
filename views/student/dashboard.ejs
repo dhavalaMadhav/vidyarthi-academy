@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar', { role: 'student' }) %>
+    
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>DASHBOARD</h1>
+        <div class="user-profile">
+          <span id="userName">Loading...</span>
+        </div>
+      </div>
+      
+      <div class="dashboard-body">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3 id="totalApplications">0</h3>
+            <p>Total Applications</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="certificates">0</h3>
+            <p>Certificates</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="trainingsEnrolled">0</h3>
+            <p>Trainings Enrolled</p>
+          </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="section-card">
+          <h2>QUICK ACTIONS</h2>
+          <div class="action-buttons">
+            <a href="/student/internship" class="btn btn-primary">Browse Internships</a>
+            <a href="/student/training" class="btn btn-secondary">Explore Training</a>
+            <a href="/student/career" class="btn btn-secondary">Career Counseling</a>
+          </div>
+        </div>
+        
+        <!-- Recent Applications -->
+        <div class="section-card">
+          <h2>RECENT APPLICATIONS</h2>
+          <div id="recentApplications">
+            <p>Loading...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    // Check authentication
+    checkAuth('student');
+    
+    // Load dashboard data
+    async function loadDashboard() {
+      try {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+        
+        document.getElementById('userName').textContent = user.name;
+        
+        const response = await fetch('/api/student/dashboard', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          document.getElementById('totalApplications').textContent = data.data.stats.totalApplications;
+          document.getElementById('certificates').textContent = data.data.stats.certificates;
+          document.getElementById('trainingsEnrolled').textContent = data.data.stats.trainingsEnrolled;
+          
+          // Display recent applications
+          const applicationsDiv = document.getElementById('recentApplications');
+          if (data.data.applications.length === 0) {
+            applicationsDiv.innerHTML = '<p>No applications yet. Start applying!</p>';
+          } else {
+            applicationsDiv.innerHTML = data.data.applications.map(app => `
+              <div class="application-item">
+                <h4>${app.internship.title}</h4>
+                <p>Status: <span class="status-badge ${app.status}">${app.status}</span></p>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+      }
+    }
+    
+    loadDashboard();
+  </script>
+</body>
+</html>

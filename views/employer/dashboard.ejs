@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employer Dashboard - Vidyarthi Academy</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar', { role: 'employer' }) %>
+    
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>EMPLOYER DASHBOARD</h1>
+        <div class="user-profile">
+          <span id="userName"></span>
+        </div>
+      </div>
+      
+      <div class="dashboard-body">
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3 id="totalInternships">0</h3>
+            <p>Total Internships</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="activeInternships">0</h3>
+            <p>Active Internships</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="totalApplications">0</h3>
+            <p>Total Applications</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="shortlisted">0</h3>
+            <p>Shortlisted</p>
+          </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="section-card">
+          <h2>QUICK ACTIONS</h2>
+          <div class="action-buttons">
+            <a href="/employer/internships" class="btn btn-primary">Post New Internship</a>
+            <button onclick="viewApplications()" class="btn btn-secondary">View Applications</button>
+            <button onclick="manageInternships()" class="btn btn-secondary">Manage Internships</button>
+          </div>
+        </div>
+        
+        <!-- Recent Applications -->
+        <div class="section-card">
+          <h2>RECENT APPLICATIONS</h2>
+          <div id="recentApplications">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    checkAuth('employer');
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('userName').textContent = user.name;
+    
+    // Load dashboard data
+    async function loadDashboard() {
+      try {
+        const data = await apiCall('/api/employer/dashboard');
+        
+        // Update stats
+        document.getElementById('totalInternships').textContent = data.data.stats.totalInternships;
+        document.getElementById('activeInternships').textContent = data.data.stats.activeInternships;
+        document.getElementById('totalApplications').textContent = data.data.stats.totalApplications;
+        
+        // Display recent applications
+        displayApplications(data.data.recentApplications);
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+      }
+    }
+    
+    // Display applications
+    function displayApplications(applications) {
+      const container = document.getElementById('recentApplications');
+      
+      if (applications.length === 0) {
+        container.innerHTML = '<p class="no-data">No recent applications</p>';
+        return;
+      }
+      
+      container.innerHTML = `
+        <div class="applications-table">
+          ${applications.map(app => `
+            <div class="application-row">
+              <div class="app-info">
+                <h4>${app.student.name}</h4>
+                <p>${app.internship.title}</p>
+                <p class="app-date">Applied: ${formatDate(app.createdAt)}</p>
+              </div>
+              <div class="app-status">
+                <span class="status-badge ${app.status}">${app.status}</span>
+                <button onclick="viewApplication('${app._id}')" class="btn btn-primary btn-small">View</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    
+    function viewApplications() {
+      window.location.href = '/employer/internships';
+    }
+    
+    function manageInternships() {
+      window.location.href = '/employer/internships';
+    }
+    
+    function viewApplication(id) {
+      alert('View application details: ' + id);
+      // TODO: Implement application details view
+    }
+    
+    // Initial

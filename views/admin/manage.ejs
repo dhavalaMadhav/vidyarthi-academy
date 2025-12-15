@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Portal - Vidyarthi Academy</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar', { role: 'admin' }) %>
+    
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>MANAGE PORTAL</h1>
+        <div class="user-profile">
+          <span id="userName">Admin</span>
+        </div>
+      </div>
+      
+      <div class="dashboard-body">
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+          <button class="tab-btn active" onclick="switchTab('users')">Users</button>
+          <button class="tab-btn" onclick="switchTab('employers')">Approve Employers</button>
+          <button class="tab-btn" onclick="switchTab('internships')">Internships</button>
+          <button class="tab-btn" onclick="switchTab('certificates')">Certificates</button>
+          <button class="tab-btn" onclick="switchTab('trainings')">Trainings</button>
+          <button class="tab-btn" onclick="switchTab('fellowships')">Fellowships</button>
+          <button class="tab-btn" onclick="switchTab('feedback')">Feedback</button>
+        </div>
+        
+        <!-- Users Tab -->
+        <div id="usersTab" class="tab-content active">
+          <div class="section-card">
+            <div class="section-header">
+              <h2>USER MANAGEMENT</h2>
+              <div class="filter-controls">
+                <select id="roleFilter" onchange="filterUsers()">
+                  <option value="">All Roles</option>
+                  <option value="student">Students</option>
+                  <option value="employer">Employers</option>
+                  <option value="admin">Admins</option>
+                </select>
+                <input type="text" id="userSearch" placeholder="Search users..." onkeyup="searchUsers()">
+              </div>
+            </div>
+            
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                  <tr>
+                    <td colspan="6" class="loading">Loading users...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Employers Approval Tab -->
+        <div id="employersTab" class="tab-content">
+          <div class="section-card">
+            <h2>PENDING EMPLOYER APPROVALS</h2>
+            <div id="pendingEmployers">
+              <div class="loading">Loading...</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Internships Tab -->
+        <div id="internshipsTab" class="tab-content">
+          <div class="section-card">
+            <h2>ALL INTERNSHIPS</h2>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Applications</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="internshipsTableBody">
+                  <tr>
+                    <td colspan="6" class="loading">Loading internships...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Certificates Tab -->
+        <div id="certificatesTab" class="tab-content">
+          <div class="section-card">
+            <h2>CERTIFICATE MANAGEMENT</h2>
+            <div class="filter-controls">
+              <select id="certStatusFilter" onchange="filterCertificates()">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="issued">Issued</option>
+              </select>
+            </div>
+            
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Certificate ID</th>
+                    <th>Student</th>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="certificatesTableBody">
+                  <tr>
+                    <td colspan="6" class="loading">Loading certificates...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Trainings Tab -->
+        <div id="trainingsTab" class="tab-content">
+          <div class="section-card">
+            <h2>TRAINING PROGRAMS</h2>
+            <button onclick="showCreateTraining()" class="btn btn-primary">+ Create New Training</button>
+            
+            <div id="createTrainingForm" style="display: none; margin-top: var(--spacing-md);">
+              <form id="trainingForm">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="trainingTitle">Title *</label>
+                    <input type="text" id="trainingTitle" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="trainingCategory">Category *</label>
+                    <input type="text" id="trainingCategory" required>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="trainingDescription">Description *</label>
+                  <textarea id="trainingDescription" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="trainingDuration">Duration *</label>
+                    <input type="text" id="trainingDuration" placeholder="e.g., 4 weeks" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="trainingLevel">Level *</label>
+                    <select id="trainingLevel" required>
+                      <option value="Beginner">Beginner</option>
+                      <option value="Intermediate">Intermediate</option>
+                      <option value="Advanced">Advanced</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="trainingMaxStudents">Max Students *</label>
+                    <input type="number" id="trainingMaxStudents" value="50" required>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="instructorName">Instructor Name *</label>
+                  <input type="text" id="instructorName" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="instructorBio">Instructor Bio</label>
+                  <textarea id="instructorBio" rows="2"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Create Training</button>
+                <button type="button" onclick="hideCreateTraining()" class="btn btn-secondary">Cancel</button>
+              </form>
+            </div>
+            
+            <div id="trainingsList" style="margin-top: var(--spacing-md);">
+              <div class="loading">Loading trainings...</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Fellowships Tab -->
+        <div id="fellowshipsTab" class="tab-content">
+          <div class="section-card">
+            <h2>FELLOWSHIP PROGRAMS</h2>
+            <button onclick="showCreateFellowship()" class="btn btn-primary">+ Create New Fellowship</button>
+            
+            <div id="createFellowshipForm" style="display: none; margin-top: var(--spacing-md);">
+              <form id="fellowshipForm">
+                <div class="form-group">
+                  <label for="fellowshipTitle">Title *</label>
+                  <input type="text" id="fellowshipTitle" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="fellowshipDescription">Description *</label>
+                  <textarea id="fellowshipDescription" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="fellowshipDuration">Duration *</label>
+                    <input type="text" id="fellowshipDuration" placeholder="e.g., 6 months" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="fellowshipStipend">Stipend</label>
+                    <input type="text" id="fellowshipStipend" placeholder="e.g., ₹15000/month">
+                  </div>
+                </div>
+                
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="fellowshipStartDate">Start Date *</label>
+                    <input type="date" id="fellowshipStartDate" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="fellowshipDeadline">Application Deadline *</label>
+                    <input type="date" id="fellowshipDeadline" required>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="fellowshipEligibility">Eligibility (comma-separated) *</label>
+                  <input type="text" id="fellowshipEligibility" placeholder="e.g., Graduate, Relevant skills" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="fellowshipBenefits">Benefits (comma-separated) *</label>
+                  <input type="text" id="fellowshipBenefits" placeholder="e.g., Stipend, Certificate, Placement" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Create Fellowship</button>
+                <button type="button" onclick="hideCreateFellowship()" class="btn btn-secondary">Cancel</button>
+              </form>
+            </div>
+            
+            <div id="fellowshipsList" style="margin-top: var(--spacing-md);">
+              <div class="loading">Loading fellowships...</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Feedback Tab -->
+        <div id="feedbackTab" class="tab-content">
+          <div class="section-card">
+            <h2>FEEDBACK & REVIEWS</h2>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Type</th>
+                    <th>Rating</th>
+                    <th>Verified</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="feedbackTableBody">
+                  <tr>
+                    <td colspan="6" class="loading">Loading feedback...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    checkAuth('admin');
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('userName').textContent = user.name;
+    
+    // Tab switching
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Remove active from all buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected tab
+      document.getElementById(tabName + 'Tab').classList.add('active');
+      event.target.classList.add('active');
+      
+      // Load data for the tab
+      loadTabData(tabName);
+    }
+    
+    // Load tab data
+    function loadTabData(tabName) {
+      switch(tabName) {
+        case 'users':
+          loadUsers();
+          break;
+        case 'employers':
+          loadPendingEmployers();
+          break;
+        case 'internships':
+          loadInternships();
+          break;
+        case 'certificates':
+          loadCertificates();
+          break;
+        case 'trainings':
+          loadTrainings();
+          break;
+        case 'fellowships':
+          loadFellowships();
+          break;
+        case 'feedback':
+          loadFeedback();
+          break;
+      }
+    }
+    
+    // Load users
+    async function loadUsers() {
+      try {
+        const data = await apiCall('/api/admin/users');
+        displayUsers(data.data);
+      } catch (error) {
+        console.error('Error loading users:', error);
+      }
+    }
+    
+    function displayUsers(users) {
+      const tbody = document.getElementById('usersTableBody');
+      if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="no-data">No users found</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = users.map(user => `
+        <tr>
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td><span class="role-badge ${user.role}">${user.role}</span></td>
+          <td><span class="status-badge ${user.isApproved ? 'approved' : 'pending'}">${user.isApproved ? 'Approved' : 'Pending'}</span></td>
+          <td>${formatDate(user.createdAt)}</td>
+          <td>
+            <button onclick="viewUser('${user._id}')" class="btn-icon" title="View">👁️</button>
+            <button onclick="deleteUser('${user._id}')" class="btn-icon" title="Delete">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+    
+    // Load pending employers
+    async function loadPendingEmployers() {
+      try {
+        const data = await apiCall('/api/admin/users?role=employer&approved=false');
+        displayPendingEmployers(data.data);
+      } catch (error) {
+        console.error('Error loading pending employers:', error);
+      }
+    }
+    
+    function displayPendingEmployers(employers) {
+      const container = document.getElementById('pendingEmployers');
+      if (employers.length === 0) {
+        container.innerHTML = '<p class="no-data">No pending employer approvals</p>';
+        return;
+      }
+      
+      container.innerHTML = employers.map(emp => `
+        <div class="approval-card">
+          <div class="approval-info">
+            <h3>${emp.name}</h3>
+            <p><strong>Email:</strong> ${emp.email}</p>
+            <p><strong>Mobile:</strong> ${emp.mobile}</p>
+            <p><strong>Company:</strong> ${emp.companyDetails?.companyName || 'N/A'}</p>
+            <p><strong>Applied:</strong> ${formatDate(emp.createdAt)}</p>
+          </div>
+          <div class="approval-actions">
+            <button onclick="approveEmployer('${emp._id}')" class="btn btn-primary">✓ Approve</button>
+            <button onclick="rejectEmployer('${emp._id}')" class="btn btn-secondary">✗ Reject</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // Approve employer
+    async function approveEmployer(id) {
+      if (!confirm('Approve this employer?')) return;
+      
+      try {
+        await apiCall(`/api/admin/users/${id}/approve`, 'PUT', { isApproved: true });
+        alert('Employer approved successfully');
+        loadPendingEmployers();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+    
+    // Reject employer
+    async function rejectEmployer(id) {
+      if (!confirm('Reject this employer? This will delete their account.')) return;
+      
+      try {
+        await apiCall(`/api/admin/users/${id}`, 'DELETE');
+        alert('Employer rejected');
+        loadPendingEmployers();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+    
+    // Load internships
+    async function loadInternships() {
+      try {
+        const data = await apiCall('/api/admin/internships');
+        displayInternships(data.data);
+      } catch (error) {
+        console.error('Error loading internships:', error);
+      }
+    }
+    
+    function displayInternships(internships) {
+      const tbody = document.getElementById('internshipsTableBody');
+      if (internships.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="no-data">No internships found</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = internships.map(int => `
+        <tr>
+          <td>${int.title}</td>
+          <td>${int.company?.name || 'N/A'}</td>
+          <td>${int.location}</td>
+          <td>${int.applicationsCount}</td>
+          <td><span class="status-badge ${int.status}">${int.status}</span></td>
+          <td>
+            <button onclick="deleteInternship('${int._id}')" class="btn-icon" title="Delete">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+    
+    // Delete internship
+    async function deleteInternship(id) {
+      if (!confirm('Delete this internship?')) return;
+      
+      try {
+        await apiCall(`/api/admin/internships/${id}`, 'DELETE');
+        alert('Internship deleted');
+        loadInternships();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+    
+    // Load certificates
+    async function loadCertificates() {
+      try {
+        const data = await apiCall('/api/admin/certificates');
+        displayCertificates(data.data);
+      } catch (error) {
+        console.error('Error loading certificates:', error);
+      }
+    }
+    
+    function displayCertificates(certificates) {
+      const tbody = document.getElementById('certificatesTableBody');
+      if (certificates.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="no-data">No certificates found</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = certificates.map(cert => `
+        <tr>
+          <td>${cert.certificateId}</td>
+          <td>${cert.student?.name || 'N/A'}</td>
+          <td>${cert.type}</td>
+          <td>${cert.title}</td>
+          <td><span class="status-badge ${cert.status}">${cert.status}</span></td>
+          <td>
+            ${cert.status === 'pending' ? `<button onclick="approveCertificate('${cert._id}')" class="btn-icon" title="Approve">✓</button>` : ''}
+          </td>
+        </tr>
+      `).join('');
+    }
+    
+    // Approve certificate
+    async function approveCertificate(id) {
+      if (!confirm('Approve and issue this certificate?')) return;
+      
+      try {
+        await apiCall(`/api/admin/certificates/${id}/approve`, 'PUT');
+        alert('Certificate approved and issued');
+        loadCertificates();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+    
+    // Training management
+    function showCreateTraining() {
+      document.getElementById('createTrainingForm').style.display = 'block';
+    }
+    
+    function hideCreateTraining() {
+      document.getElementById('createTrainingForm').style.display = 'none';
+      document.getElementById('trainingForm').reset();
+    }
+    
+    document.getElementById('trainingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const data = {
+        title: document.getElementById('trainingTitle').value,
+        category: document.getElementById('trainingCategory').value,
+        description: document.getElementById('trainingDescription').value,
+        duration: document.getElementById('trainingDuration').value,
+        level: document.getElementById('trainingLevel').value,
+        maxStudents: document.getElementById('trainingMaxStudents').value,
+        instructor: {
+          name: document.getElementById('instructorName').value,
+          bio: document.getElementById('instructorBio').value,
+        },
+        schedule: {
+          startDate: new Date(),
+          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          sessions: []
+        }
+      };
+      
+      try {
+        await apiCall('/api/admin/trainings', 'POST', data);
+        alert('Training program created successfully');
+        hideCreateTraining();
+        loadTrainings();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+    
+    // Fellowship management
+    function showCreateFellowship() {
+      document.getElementById('createFellowshipForm').style.display = 'block';
+    }
+    
+    function hideCreateFellowship() {
+      document.getElementById('createFellowshipForm').style.display = 'none';
+      document.getElementById('fellowshipForm').reset();
+    }
+    
+    document.getElementById('fellowshipForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const data = {
+        title: document.getElementById('fellowshipTitle').value,
+        description: document.getElementById('fellowshipDescription').value,
+        duration: document.getElementById('fellowshipDuration').value,
+        stipend: document.getElementById('fellowshipStipend').value,
+        startDate: document.getElementById('fellowshipStartDate').value,
+        applicationDeadline: document.getElementById('fellowshipDeadline').value,
+        eligibility: document.getElementById('fellowshipEligibility').value.split(',').map(s => s.trim()),
+        benefits: document.getElementById('fellowshipBenefits').value.split(',').map(s => s.trim()),
+      };
+      
+      try {
+        await apiCall('/api/admin/fellowships', 'POST', data);
+        alert('Fellowship created successfully');
+        hideCreateFellowship();
+        loadFellowships();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+    
+    async function loadTrainings() {
+      document.getElementById('trainingsList').innerHTML = '<p class="no-data">Training list will appear here</p>';
+    }
+    
+    async function loadFellowships() {
+      document.getElementById('fellowshipsList').innerHTML = '<p class="no-data">Fellowship list will appear here</p>';
+    }
+    
+    async function loadFeedback() {
+      try {
+        const data = await apiCall('/api/admin/feedback');
+        displayFeedback(data.data);
+      } catch (error) {
+        console.error('Error loading feedback:', error);
+      }
+    }
+    
+    function displayFeedback(feedback) {
+      const tbody = document.getElementById('feedbackTableBody');
+      if (feedback.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="no-data">No feedback found</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = feedback.map(fb => `
+        <tr>
+          <td>${fb.from?.name || 'N/A'}</td>
+          <td>${fb.to?.name || 'N/A'}</td>
+          <td>${fb.type}</td>
+          <td>${'⭐'.repeat(fb.rating)}</td>
+          <td><span class="status-badge ${fb.isVerified ? 'approved' : 'pending'}">${fb.isVerified ? 'Verified' : 'Unverified'}</span></td>
+          <td>
+            ${!fb.isVerified ? `<button onclick="verifyFeedback('${fb._id}')" class="btn-icon" title="Verify">✓</button>` : ''}
+          </td>
+        </tr>
+      `).join('');
+    }
+    
+    async function verifyFeedback(id) {
+      try {
+        await apiCall(`/api/admin/feedback/${id}/verify`, 'PUT');
+        alert('Feedback verified');
+        loadFeedback();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+    
+    function viewUser(id) {
+      alert('View user details: ' + id);
+    }
+    
+    async function deleteUser(id) {
+      if (!confirm('Delete this user?')) return;
+      
+      try {
+        await apiCall(`/api/admin/users/${id}`, 'DELETE');
+        alert('User deleted');
+        loadUsers();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+    
+    function filterUsers() {
+      loadUsers();
+    }
+    
+    function searchUsers() {
+      loadUsers();
+    }
+    
+    function filterCertificates() {
+      loadCertificates();
+    }
+    
+    // Check URL params for initial tab
+    const urlParams = new URLSearchParams(window.location.search);
+    const section = urlParams.get('section');
+    if (section) {
+      switchTab(section);
+    } else {
+      loadUsers();
+    }
+  </script>
+  
+  <style>
+    .tab-navigation {
+      display: flex;
+      gap: var(--spacing-xs);
+      margin-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--color-primary);
+      flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: var(--color-gray-light);
+      border: 2px solid var(--color-primary);
+      border-bottom: none;
+      font-family: var(--font-primary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: -2px;
+    }
+    
+    .tab-btn:hover {
+      background: var(--color-secondary);
+    }
+    
+    .tab-btn.active {
+      background: var(--color-secondary);
+      border-bottom: 2px solid var(--color-secondary);
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+    }
+    
+    .filter-controls {
+      display: flex;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+    }
+    
+    .filter-controls select,
+    .filter-controls input {
+      padding: 8px 12px;
+      border: 2px solid var(--color-primary);
+      border-radius: var(--border-radius);
+      font-family: var(--font-primary);
+    }
+    
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 2px solid var(--color-primary);
+    }
+    
+    .data-table th,
+    .data-table td {
+      padding: var(--spacing-sm);
+      text-align: left;
+      border: 1px solid var(--color-gray);
+    }
+    
+    .data-table th {
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    
+    .data-table tr:nth-child(even) {
+      background: var(--color-gray-light);
+    }
+    
+    .data-table tr:hover {
+      background: #f0f0f0;
+    }
+    
+    .role-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      border-radius: var(--border-radius);
+    }
+    
+    .role-badge.student {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .role-badge.employer {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+    
+    .role-badge.admin {
+      background: #ffebee;
+      color: #c62828;
+    }
+    
+    .btn-icon {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+      transition: transform 0.2s;
+    }
+    
+    .btn-icon:hover {
+      transform: scale(1.2);
+    }
+    
+    .approval-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md);
+      border: 2px solid var(--color-primary);
+      margin-bottom: var(--spacing-md);
+      background: var(--color-secondary);
+      box-shadow: var(--shadow-solid);
+    }
+    
+    .approval-info h3 {
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .approval-info p {
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    
+    .approval-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+  </style>
+</body>
+</html>

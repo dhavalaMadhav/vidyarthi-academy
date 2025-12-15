@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentorship - Vidyarthi Academy</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar', { role: 'student' }) %>
+    
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>MENTORSHIP PROGRAM</h1>
+        <div class="user-profile">
+          <span id="userName"></span>
+        </div>
+      </div>
+      
+      <div class="dashboard-body">
+        <!-- Program Overview -->
+        <div class="section-card">
+          <h2>ABOUT MENTORSHIP</h2>
+          <p>Connect with industry experts for personalized career guidance, skill development, and professional growth. Our mentors are experienced professionals dedicated to helping you achieve your career goals.</p>
+          <div class="mentorship-benefits">
+            <div class="benefit-card">
+              <div class="benefit-icon">🎯</div>
+              <h4>Career Guidance</h4>
+              <p>Get expert advice on career paths and opportunities</p>
+            </div>
+            <div class="benefit-card">
+              <div class="benefit-icon">📚</div>
+              <h4>Skill Development</h4>
+              <p>Learn industry-relevant skills from professionals</p>
+            </div>
+            <div class="benefit-card">
+              <div class="benefit-icon">🤝</div>
+              <h4>Networking</h4>
+              <p>Build valuable professional connections</p>
+            </div>
+            <div class="benefit-card">
+              <div class="benefit-icon">💡</div>
+              <h4>Real Insights</h4>
+              <p>Gain practical knowledge from experience</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Available Mentors -->
+        <div class="section-card">
+          <h2>AVAILABLE MENTORS</h2>
+          <div class="mentors-grid">
+            <div class="mentor-card">
+              <div class="mentor-avatar">👨‍💼</div>
+              <h3>Dr. Rajesh Kumar</h3>
+              <p class="mentor-title">Software Engineering Expert</p>
+              <p class="mentor-expertise">⭐ 15+ years experience</p>
+              <p class="mentor-bio">Specializes in full-stack development, system design, and cloud architecture.</p>
+              <div class="mentor-tags">
+                <span class="tag">JavaScript</span>
+                <span class="tag">Python</span>
+                <span class="tag">Cloud</span>
+              </div>
+              <button onclick="bookSession('Dr. Rajesh Kumar')" class="btn btn-primary btn-block">Book Session</button>
+            </div>
+            
+            <div class="mentor-card">
+              <div class="mentor-avatar">👩‍💼</div>
+              <h3>Priya Sharma</h3>
+              <p class="mentor-title">Data Science Leader</p>
+              <p class="mentor-expertise">⭐ 12+ years experience</p>
+              <p class="mentor-bio">Expert in machine learning, AI, and data analytics with Fortune 500 experience.</p>
+              <div class="mentor-tags">
+                <span class="tag">ML</span>
+                <span class="tag">AI</span>
+                <span class="tag">Analytics</span>
+              </div>
+              <button onclick="bookSession('Priya Sharma')" class="btn btn-primary btn-block">Book Session</button>
+            </div>
+            
+            <div class="mentor-card">
+              <div class="mentor-avatar">👨‍🏫</div>
+              <h3>Amit Patel</h3>
+              <p class="mentor-title">Product Management Guru</p>
+              <p class="mentor-expertise">⭐ 10+ years experience</p>
+              <p class="mentor-bio">Product strategy, user research, and building successful tech products.</p>
+              <div class="mentor-tags">
+                <span class="tag">Product</span>
+                <span class="tag">Strategy</span>
+                <span class="tag">UX</span>
+              </div>
+              <button onclick="bookSession('Amit Patel')" class="btn btn-primary btn-block">Book Session</button>
+            </div>
+            
+            <div class="mentor-card">
+              <div class="mentor-avatar">👩‍🎓</div>
+              <h3>Sneha Reddy</h3>
+              <p class="mentor-title">Digital Marketing Expert</p>
+              <p class="mentor-expertise">⭐ 8+ years experience</p>
+              <p class="mentor-bio">SEO, content marketing, social media strategy, and growth hacking.</p>
+              <div class="mentor-tags">
+                <span class="tag">SEO</span>
+                <span class="tag">Content</span>
+                <span class="tag">Growth</span>
+              </div>
+              <button onclick="bookSession('Sneha Reddy')" class="btn btn-primary btn-block">Book Session</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- My Sessions -->
+        <div class="section-card">
+          <h2>MY MENTORSHIP SESSIONS</h2>
+          <div id="mySessions">
+            <div class="session-card">
+              <div class="session-header">
+                <h4>No sessions booked yet</h4>
+              </div>
+              <p>Book your first mentorship session to get started!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Book Session Modal -->
+  <div id="bookingModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>BOOK MENTORSHIP SESSION</h2>
+        <span class="modal-close" onclick="closeBookingModal()">&times;</span>
+      </div>
+      <form id="bookingForm" class="modal-body">
+        <input type="hidden" id="mentorName">
+        <div class="form-group">
+          <label>Mentor</label>
+          <p id="selectedMentor" style="font-weight: 600;"></p>
+        </div>
+        <div class="form-group">
+          <label for="sessionDate">Preferred Date *</label>
+          <input type="date" id="sessionDate" required min="">
+        </div>
+        <div class="form-group">
+          <label for="sessionTime">Preferred Time *</label>
+          <select id="sessionTime" required>
+            <option value="">Select Time</option>
+            <option value="09:00">09:00 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="14:00">02:00 PM</option>
+            <option value="15:00">03:00 PM</option>
+            <option value="16:00">04:00 PM</option>
+            <option value="17:00">05:00 PM</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="sessionTopic">Session Topic *</label>
+          <input type="text" id="sessionTopic" required placeholder="e.g., Career guidance in software development">
+        </div>
+        <div class="form-group">
+          <label for="sessionDescription">Additional Details</label>
+          <textarea id="sessionDescription" rows="4" placeholder="What would you like to discuss?"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Confirm Booking</button>
+          <button type="button" onclick="closeBookingModal()" class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    checkAuth('student');
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('userName').textContent = user.name;
+    
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('sessionDate').setAttribute('min', today);
+    
+    // Book session
+    function bookSession(mentorName) {
+      document.getElementById('mentorName').value = mentorName;
+      document.getElementById('selectedMentor').textContent = mentorName;
+      document.getElementById('bookingModal').style.display = 'flex';
+    }
+    
+    // Close booking modal
+    function closeBookingModal() {
+      document.getElementById('bookingModal').style.display = 'none';
+      document.getElementById('bookingForm').reset();
+    }
+    
+    // Submit booking
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const bookingData = {
+        mentor: document.getElementById('mentorName').value,
+        date: document.getElementById('sessionDate').value,
+        time: document.getElementById('sessionTime').value,
+        topic: document.getElementById('sessionTopic').value,
+        description: document.getElementById('sessionDescription').value,
+      };
+      
+      // TODO: API call to book session
+      console.log('Booking data:', bookingData);
+      
+      alert('Session booking request submitted! You will receive a confirmation email.');
+      closeBookingModal();
+    });
+  </script>
+  
+  <style>
+    .mentorship-benefits {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-md);
+    }
+    
+    .benefit-card {
+      text-align: center;
+      padding: var(--spacing-md);
+      border: 1px solid var(--color-gray);
+      background: var(--color-gray-light);
+    }
+    
+    .benefit-icon {
+      font-size: 48px;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .benefit-card h4 {
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .benefit-card p {
+      font-size: 14px;
+      color: var(--color-gray-dark);
+    }
+    
+    .mentors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--spacing-md);
+    }
+    
+    .mentor-card {
+      border: 2px solid var(--color-primary);
+      padding: var(--spacing-md);
+      background: var(--color-secondary);
+      box-shadow: var(--shadow-solid);
+      text-align: center;
+      transition: all 0.2s;
+    }
+    
+    .mentor-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: var(--shadow-solid-hover);
+    }
+    
+    .mentor-avatar {
+      font-size: 72px;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .mentor-card h3 {
+      margin-bottom: var(--spacing-xs);
+      font-size: 20px;
+    }
+    
+    .mentor-title {
+      color: var(--color-gray-dark);
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .mentor-expertise {
+      font-size: 14px;
+      margin-bottom: var(--spacing-sm);
+      color: #28a745;
+    }
+    
+    .mentor-bio {
+      font-size: 14px;
+      margin-bottom: var(--spacing-md);
+      text-align: left;
+    }
+    
+    .mentor-tags {
+      display: flex;
+      gap: var(--spacing-xs);
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .tag {
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .session-card {
+      border: 1px solid var(--color-gray);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+    }
+  </style>
+</body>
+</html>

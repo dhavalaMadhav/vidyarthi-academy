@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internships - Vidyarthi Academy</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar', { role: 'student' }) %>
+    
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>INTERNSHIPS</h1>
+        <div class="user-profile">
+          <span id="userName"></span>
+        </div>
+      </div>
+      
+      <div class="dashboard-body">
+        <!-- Search & Filters -->
+        <div class="section-card">
+          <h2>SEARCH & FILTER</h2>
+          <div class="filters-container">
+            <div class="filter-group">
+              <input type="text" id="searchInput" placeholder="Search internships..." class="filter-input">
+            </div>
+            <div class="filter-group">
+              <select id="locationFilter" class="filter-input">
+                <option value="">All Locations</option>
+                <option value="Remote">Remote</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Bangalore">Bangalore</option>
+                <option value="Hyderabad">Hyderabad</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <select id="typeFilter" class="filter-input">
+                <option value="">All Types</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Remote">Remote</option>
+                <option value="Hybrid">Hybrid</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <select id="durationFilter" class="filter-input">
+                <option value="">All Durations</option>
+                <option value="1-3 months">1-3 months</option>
+                <option value="3-6 months">3-6 months</option>
+                <option value="6+ months">6+ months</option>
+              </select>
+            </div>
+            <button onclick="applyFilters()" class="btn btn-primary">Apply Filters</button>
+            <button onclick="resetFilters()" class="btn btn-secondary">Reset</button>
+          </div>
+        </div>
+        
+        <!-- Internships List -->
+        <div class="section-card">
+          <h2>AVAILABLE INTERNSHIPS</h2>
+          <div id="internshipsList">
+            <div class="loading">Loading internships...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Apply Modal -->
+  <div id="applyModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>APPLY FOR INTERNSHIP</h2>
+        <span class="modal-close" onclick="closeApplyModal()">&times;</span>
+      </div>
+      <form id="applyForm" class="modal-body">
+        <input type="hidden" id="internshipId">
+        <div class="form-group">
+          <label for="coverLetter">Cover Letter *</label>
+          <textarea id="coverLetter" rows="6" required placeholder="Explain why you're a good fit..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="resume">Resume URL (Optional)</label>
+          <input type="url" id="resume" placeholder="https://drive.google.com/...">
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Submit Application</button>
+          <button type="button" onclick="closeApplyModal()" class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    checkAuth('student');
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('userName').textContent = user.name;
+    
+    let internships = [];
+    
+    // Load internships
+    async function loadInternships(filters = {}) {
+      try {
+        const queryParams = new URLSearchParams(filters).toString();
+        const data = await apiCall(`/api/student/internships?${queryParams}`);
+        
+        internships = data.data;
+        displayInternships(internships);
+      } catch (error) {
+        console.error('Error loading internships:', error);
+        document.getElementById('internshipsList').innerHTML = '<p class="error">Failed to load internships</p>';
+      }
+    }
+    
+    // Display internships
+    function displayInternships(data) {
+      const container = document.getElementById('internshipsList');
+      
+      if (data.length === 0) {
+        container.innerHTML = '<p class="no-data">No internships found</p>';
+        return;
+      }
+      
+      container.innerHTML = data.map(internship => `
+        <div class="internship-card">
+          <div class="internship-header">
+            <h3>${internship.title}</h3>
+            <span class="type-badge">${internship.type}</span>
+          </div>
+          <div class="internship-meta">
+            <span>📍 ${internship.location}</span>
+            <span>⏱️ ${internship.duration}</span>
+            <span>💰 ${internship.stipend}</span>
+            <span>📅 Deadline: ${formatDate(internship.applicationDeadline)}</span>
+          </div>
+          <p class="internship-description">${internship.description}</p>
+          <div class="internship-skills">
+            ${internship.skillsRequired.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+          </div>
+          <div class="internship-footer">
+            <span>${internship.applicationsCount} applicants</span>
+            <button onclick="openApplyModal('${internship._id}')" class="btn btn-primary">Apply Now</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // Apply filters
+    function applyFilters() {
+      const filters = {
+        search: document.getElementById('searchInput').value,
+        location: document.getElementById('locationFilter').value,
+        type: document.getElementById('typeFilter').value,
+        duration: document.getElementById('durationFilter').value,
+      };
+      
+      // Remove empty values
+      Object.keys(filters).forEach(key => !filters[key] && delete filters[key]);
+      
+      loadInternships(filters);
+    }
+    
+    // Reset filters
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('locationFilter').value = '';
+      document.getElementById('typeFilter').value = '';
+      document.getElementById('durationFilter').value = '';
+      loadInternships();
+    }
+    
+    // Open apply modal
+    function openApplyModal(internshipId) {
+      document.getElementById('internshipId').value = internshipId;
+      document.getElementById('applyModal').style.display = 'flex';
+    }
+    
+    // Close apply modal
+    function closeApplyModal() {
+      document.getElementById('applyModal').style.display = 'none';
+      document.getElementById('applyForm').reset();
+    }
+    
+    // Submit application
+    document.getElementById('applyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const internshipId = document.getElementById('internshipId').value;
+      const coverLetter = document.getElementById('coverLetter').value;
+      const resume = document.getElementById('resume').value;
+      
+      try {
+        const data = await apiCall(`/api/student/internships/${internshipId}/apply`, 'POST', {
+          coverLetter,
+          resume,
+        });
+        
+        alert('Application submitted successfully!');
+        closeApplyModal();
+        loadInternships();
+      } catch (error) {
+        alert(error.message || 'Failed to submit application');
+      }
+    });
+    
+    // Initial load
+    loadInternships();
+  </script>
+  
+  <style>
+    .filters-container {
+      display: flex;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    
+    .filter-group {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .filter-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--color-primary);
+      border-radius: var(--border-radius);
+      font-family: var(--font-primary);
+    }
+    
+    .internship-card {
+      border: 2px solid var(--color-primary);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+      background: var(--color-secondary);
+      box-shadow: var(--shadow-solid);
+      transition: all 0.2s;
+    }
+    
+    .internship-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: var(--shadow-solid-hover);
+    }
+    
+    .internship-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .internship-header h3 {
+      margin: 0;
+    }
+    
+    .type-badge {
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .internship-meta {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+      font-size: 14px;
+      color: var(--color-gray-dark);
+      flex-wrap: wrap;
+    }
+    
+    .internship-description {
+      margin-bottom: var(--spacing-sm);
+      color: var(--color-gray-dark);
+    }
+    
+    .internship-skills {
+      display: flex;
+      gap: var(--spacing-xs);
+      flex-wrap: wrap;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .skill-tag {
+      background: var(--color-gray-light);
+      border: 1px solid var(--color-gray);
+      padding: 4px 12px;
+      font-size: 12px;
+      border-radius: var(--border-radius);
+    }
+    
+    .internship-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: var(--spacing-sm);
+      border-top: 1px solid var(--color-gray);
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    
+    .modal-content {
+      background: var(--color-secondary);
+      border: 2px solid var(--color-primary);
+      box-shadow: var(--shadow-solid);
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md);
+      border-bottom: 2px solid var(--color-primary);
+    }
+    
+    .modal-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+    
+    .modal-close {
+      font-size: 32px;
+      cursor: pointer;
+      font-weight: 300;
+    }
+    
+    .modal-body {
+      padding: var(--spacing-md);
+    }
+    
+    .modal-footer {
+      display: flex;
+      gap: var(--spacing-sm);
+      padding-top: var(--spacing-md);
+      border-top: 1px solid var(--color-gray);
+    }
+    
+    .loading {
+      text-align: center;
+      padding: var(--spacing-xl);
+      color: var(--color-gray-dark);
+    }
+    
+    .no-data {
+      text-align: center;
+      padding: var(--spacing-xl);
+      color: var(--color-gray-dark);
+    }
+    
+    .error {
+      text-align: center;
+      padding: var(--spacing-xl);
+      color: #dc3545;
+    }
+  </style>
+</body>
+</html>

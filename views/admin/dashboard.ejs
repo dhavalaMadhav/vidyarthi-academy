@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Vidyarthi Academy</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar', { role: 'admin' }) %>
+    
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>ADMIN DASHBOARD</h1>
+        <div class="user-profile">
+          <span id="userName">Admin</span>
+        </div>
+      </div>
+      
+      <div class="dashboard-body">
+        <!-- Main Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card stat-primary">
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+              <h3 id="totalStudents">0</h3>
+              <p>Total Students</p>
+            </div>
+          </div>
+          
+          <div class="stat-card stat-secondary">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-content">
+              <h3 id="totalEmployers">0</h3>
+              <p>Total Employers</p>
+            </div>
+          </div>
+          
+          <div class="stat-card stat-warning">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-content">
+              <h3 id="pendingEmployers">0</h3>
+              <p>Pending Approvals</p>
+            </div>
+          </div>
+          
+          <div class="stat-card stat-success">
+            <div class="stat-icon">💼</div>
+            <div class="stat-content">
+              <h3 id="totalInternships">0</h3>
+              <p>Total Internships</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Secondary Stats -->
+        <div class="stats-grid-secondary">
+          <div class="stat-card-small">
+            <span class="stat-label">Active Internships</span>
+            <span class="stat-value" id="activeInternships">0</span>
+          </div>
+          
+          <div class="stat-card-small">
+            <span class="stat-label">Applications</span>
+            <span class="stat-value" id="totalApplications">0</span>
+          </div>
+          
+          <div class="stat-card-small">
+            <span class="stat-label">Certificates Issued</span>
+            <span class="stat-value" id="certificatesIssued">0</span>
+          </div>
+          
+          <div class="stat-card-small">
+            <span class="stat-label">Pending Certificates</span>
+            <span class="stat-value" id="pendingCertificates">0</span>
+          </div>
+          
+          <div class="stat-card-small">
+            <span class="stat-label">Training Programs</span>
+            <span class="stat-value" id="totalTrainings">0</span>
+          </div>
+          
+          <div class="stat-card-small">
+            <span class="stat-label">Fellowships</span>
+            <span class="stat-value" id="totalFellowships">0</span>
+          </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="section-card">
+          <h2>QUICK ACTIONS</h2>
+          <div class="action-grid">
+            <button onclick="goToManage('users')" class="action-btn">
+              <div class="action-icon">👥</div>
+              <span>Manage Users</span>
+            </button>
+            
+            <button onclick="goToManage('employers')" class="action-btn">
+              <div class="action-icon">✓</div>
+              <span>Approve Employers</span>
+            </button>
+            
+            <button onclick="goToManage('internships')" class="action-btn">
+              <div class="action-icon">💼</div>
+              <span>Manage Internships</span>
+            </button>
+            
+            <button onclick="goToManage('certificates')" class="action-btn">
+              <div class="action-icon">🎓</div>
+              <span>Approve Certificates</span>
+            </button>
+            
+            <button onclick="goToManage('trainings')" class="action-btn">
+              <div class="action-icon">📚</div>
+              <span>Create Training</span>
+            </button>
+            
+            <button onclick="goToManage('fellowships')" class="action-btn">
+              <div class="action-icon">🏆</div>
+              <span>Create Fellowship</span>
+            </button>
+            
+            <button onclick="goToManage('feedback')" class="action-btn">
+              <div class="action-icon">💬</div>
+              <span>Review Feedback</span>
+            </button>
+            
+            <button onclick="goToManage('settings')" class="action-btn">
+              <div class="action-icon">⚙️</div>
+              <span>System Settings</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="section-card">
+          <h2>RECENT ACTIVITY</h2>
+          <div class="activity-timeline">
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div class="activity-content">
+                <p><strong>New employer registration</strong></p>
+                <p class="activity-time">5 minutes ago</p>
+              </div>
+            </div>
+            
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div class="activity-content">
+                <p><strong>Certificate issued to student</strong></p>
+                <p class="activity-time">1 hour ago</p>
+              </div>
+            </div>
+            
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div class="activity-content">
+                <p><strong>New internship posted</strong></p>
+                <p class="activity-time">2 hours ago</p>
+              </div>
+            </div>
+            
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div class="activity-content">
+                <p><strong>Training program completed</strong></p>
+                <p class="activity-time">5 hours ago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- System Health -->
+        <div class="section-card">
+          <h2>SYSTEM HEALTH</h2>
+          <div class="health-grid">
+            <div class="health-item">
+              <div class="health-indicator healthy"></div>
+              <div class="health-info">
+                <p class="health-label">Database</p>
+                <p class="health-status">Operational</p>
+              </div>
+            </div>
+            
+            <div class="health-item">
+              <div class="health-indicator healthy"></div>
+              <div class="health-info">
+                <p class="health-label">API Server</p>
+                <p class="health-status">Operational</p>
+              </div>
+            </div>
+            
+            <div class="health-item">
+              <div class="health-indicator healthy"></div>
+              <div class="health-info">
+                <p class="health-label">Email Service</p>
+                <p class="health-status">Operational</p>
+              </div>
+            </div>
+            
+            <div class="health-item">
+              <div class="health-indicator warning"></div>
+              <div class="health-info">
+                <p class="health-label">Storage</p>
+                <p class="health-status">78% Used</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    checkAuth('admin');
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('userName').textContent = user.name;
+    
+    // Load dashboard data
+    async function loadDashboard() {
+      try {
+        const data = await apiCall('/api/admin/dashboard');
+        
+        // Update stats
+        document.getElementById('totalStudents').textContent = data.data.totalStudents;
+        document.getElementById('totalEmployers').textContent = data.data.totalEmployers;
+        document.getElementById('pendingEmployers').textContent = data.data.pendingEmployers;
+        document.getElementById('totalInternships').textContent = data.data.totalInternships;
+        document.getElementById('activeInternships').textContent = data.data.activeInternships;
+        document.getElementById('totalApplications').textContent = data.data.totalApplications;
+        document.getElementById('certificatesIssued').textContent = data.data.certificatesIssued;
+        document.getElementById('pendingCertificates').textContent = data.data.pendingCertificates;
+        document.getElementById('totalTrainings').textContent = data.data.totalTrainings;
+        document.getElementById('totalFellowships').textContent = data.data.totalFellowships;
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+      }
+    }
+    
+    function goToManage(section) {
+      window.location.href = `/admin/manage?section=${section}`;
+    }
+    
+    // Initial load
+    loadDashboard();
+  </script>
+  
+  <style>
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .stat-card {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg);
+      background: var(--color-secondary);
+      border: 2px solid var(--color-primary);
+      box-shadow: var(--shadow-solid);
+    }
+    
+    .stat-icon {
+      font-size: 48px;
+    }
+    
+    .stat-content h3 {
+      font-size: 36px;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .stat-content p {
+      font-size: 14px;
+      color: var(--color-gray-dark);
+      margin: 0;
+    }
+    
+    .stat-primary { border-color: #2962ff; }
+    .stat-secondary { border-color: #00bcd4; }
+    .stat-warning { border-color: #ff9800; }
+    .stat-success { border-color: #4caf50; }
+    
+    .stats-grid-secondary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .stat-card-small {
+      display: flex;
+      flex-direction: column;
+      padding: var(--spacing-md);
+      background: var(--color-gray-light);
+      border: 1px solid var(--color-gray);
+      text-align: center;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: var(--color-gray-dark);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--spacing-md);
+    }
+    
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-lg);
+      background: var(--color-secondary);
+      border: 2px solid var(--color-primary);
+      box-shadow: var(--shadow-solid);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font-primary);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .action-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: var(--shadow-solid-hover);
+    }
+    
+    .action-icon {
+      font-size: 36px;
+    }
+    
+    .activity-timeline {
+      position: relative;
+      padding-left: var(--spacing-lg);
+    }
+    
+    .activity-timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--color-gray);
+    }
+    
+    .activity-item {
+      position: relative;
+      padding-bottom: var(--spacing-md);
+    }
+    
+    .activity-dot {
+      position: absolute;
+      left: -28px;
+      top: 4px;
+      width: 12px;
+      height: 12px;
+      background: var(--color-primary);
+      border-radius: 50%;
+      border: 2px solid var(--color-secondary);
+    }
+    
+    .activity-content p {
+      margin-bottom: 4px;
+    }
+    
+    .activity-time {
+      font-size: 12px;
+      color: var(--color-gray-dark);
+    }
+    
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-md);
+    }
+    
+    .health-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md);
+      background: var(--color-gray-light);
+      border: 1px solid var(--color-gray);
+    }
+    
+    .health-indicator {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    
+    .health-indicator.healthy {
+      background: #4caf50;
+    }
+    
+    .health-indicator.warning {
+      background: #ff9800;
+    }
+    
+    .health-indicator.error {
+      background: #f44336;
+    }
+    
+    .health-label {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .health-status {
+      font-size: 14px;
+      color: var(--color-gray-dark);
+      margin: 0;
+    }
+  </style>
+</body>
+</html>

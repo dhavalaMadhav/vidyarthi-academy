@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback & Rating - Vidyarthi Academy</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar', { role: 'student' }) %>
+    
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>FEEDBACK & RATING</h1>
+        <div class="user-profile">
+          <span id="userName"></span>
+        </div>
+      </div>
+      
+      <div class="dashboard-body">
+        <!-- Submit Feedback -->
+        <div class="section-card">
+          <h2>SUBMIT FEEDBACK</h2>
+          <p>Share your experience with companies, training programs, and mentors. Your feedback helps improve the community.</p>
+          
+          <form id="feedbackForm">
+            <div class="form-group">
+              <label for="feedbackType">Feedback Type *</label>
+              <select id="feedbackType" required>
+                <option value="">Select Type</option>
+                <option value="student-to-company">Company/Internship Review</option>
+                <option value="training-feedback">Training Program Review</option>
+                <option value="mentorship-feedback">Mentorship Review</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="entityName">Company/Program Name *</label>
+              <input type="text" id="entityName" required placeholder="Enter name">
+            </div>
+            
+            <div class="form-group">
+              <label>Rating *</label>
+              <div class="star-rating">
+                <span class="star" data-rating="1">☆</span>
+                <span class="star" data-rating="2">☆</span>
+                <span class="star" data-rating="3">☆</span>
+                <span class="star" data-rating="4">☆</span>
+                <span class="star" data-rating="5">☆</span>
+              </div>
+              <input type="hidden" id="rating" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="review">Your Review *</label>
+              <textarea id="review" rows="5" required placeholder="Share your detailed experience..."></textarea>
+            </div>
+            
+            <div class="form-group">
+              <h4>Additional Ratings</h4>
+              <div class="aspect-ratings">
+                <div class="aspect-item">
+                  <label for="communication">Communication</label>
+                  <select id="communication">
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Good</option>
+                    <option value="3">3 - Average</option>
+                    <option value="2">2 - Below Average</option>
+                    <option value="1">1 - Poor</option>
+                  </select>
+                </div>
+                
+                <div class="aspect-item">
+                  <label for="professionalism">Professionalism</label>
+                  <select id="professionalism">
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Good</option>
+                    <option value="3">3 - Average</option>
+                    <option value="2">2 - Below Average</option>
+                    <option value="1">1 - Poor</option>
+                  </select>
+                </div>
+                
+                <div class="aspect-item">
+                  <label for="learning">Learning Experience</label>
+                  <select id="learning">
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Good</option>
+                    <option value="3">3 - Average</option>
+                    <option value="2">2 - Below Average</option>
+                    <option value="1">1 - Poor</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="isPublic" checked>
+                Make this feedback public (recommended for community benefit)
+              </label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+          </form>
+        </div>
+        
+        <!-- My Feedback History -->
+        <div class="section-card">
+          <h2>MY FEEDBACK HISTORY</h2>
+          <div id="feedbackHistory">
+            <p class="no-data">You haven't submitted any feedback yet.</p>
+          </div>
+        </div>
+        
+        <!-- Feedback Received -->
+        <div class="section-card">
+          <h2>FEEDBACK RECEIVED FROM EMPLOYERS</h2>
+          <div id="receivedFeedback">
+            <p class="no-data">No feedback received yet. Complete internships to receive feedback.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/js/main.js"></script>
+  <script>
+    checkAuth('student');
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('userName').textContent = user.name;
+    
+    let selectedRating = 0;
+    
+    // Star rating interaction
+    document.querySelectorAll('.star').forEach(star => {
+      star.addEventListener('click', function() {
+        selectedRating = parseInt(this.dataset.rating);
+        document.getElementById('rating').value = selectedRating;
+        
+        // Update star display
+        document.querySelectorAll('.star').forEach(s => {
+          const rating = parseInt(s.dataset.rating);
+          s.textContent = rating <= selectedRating ? '★' : '☆';
+          s.style.color = rating <= selectedRating ? '#ffc107' : '#ccc';
+        });
+      });
+      
+      star.addEventListener('mouseover', function() {
+        const rating = parseInt(this.dataset.rating);
+        document.querySelectorAll('.star').forEach(s => {
+          s.textContent = parseInt(s.dataset.rating) <= rating ? '★' : '☆';
+        });
+      });
+    });
+    
+    document.querySelector('.star-rating').addEventListener('mouseleave', function() {
+      document.querySelectorAll('.star').forEach(s => {
+        const rating = parseInt(s.dataset.rating);
+        s.textContent = rating <= selectedRating ? '★' : '☆';
+        s.style.color = rating <= selectedRating ? '#ffc107' : '#ccc';
+      });
+    });
+    
+    // Submit feedback
+    document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!selectedRating) {
+        alert('Please select a rating');
+        return;
+      }
+      
+      const feedbackData = {
+        type: document.getElementById('feedbackType').value,
+        entityName: document.getElementById('entityName').value,
+        rating: selectedRating,
+        review: document.getElementById('review').value,
+        aspects: {
+          communication: parseInt(document.getElementById('communication').value),
+          professionalism: parseInt(document.getElementById('professionalism').value),
+          skillLevel: parseInt(document.getElementById('learning').value),
+        },
+        isPublic: document.getElementById('isPublic').checked,
+      };
+      
+      try {
+        // TODO: API call to submit feedback
+        console.log('Feedback data:', feedbackData);
+        
+        alert('Feedback submitted successfully! Thank you for your input.');
+        document.getElementById('feedbackForm').reset();
+        selectedRating = 0;
+        document.querySelectorAll('.star').forEach(s => {
+          s.textContent = '☆';
+          s.style.color = '#ccc';
+        });
+      } catch (error) {
+        alert('Failed to submit feedback. Please try again.');
+      }
+    });
+  </script>
+  
+  <style>
+    .star-rating {
+      display: flex;
+      gap: var(--spacing-xs);
+      font-size: 32px;
+      margin: var(--spacing-sm) 0;
+    }
+    
+    .star {
+      cursor: pointer;
+      color: #ccc;
+      transition: color 0.2s;
+    }
+    
+    .star:hover {
+      color: #ffc107;
+    }
+    
+    .aspect-ratings {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-sm);
+    }
+    
+    .aspect-item label {
+      display: block;
+      margin-bottom: var(--spacing-xs);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .aspect-item select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid var(--color-primary);
+      border-radius: var(--border-radius);
+      font-family: var(--font-primary);
+    }
+  </style>
+</body>
+</html>
